@@ -43,11 +43,23 @@ user function zHP002()
     oBrowse:SetDescription(cTitulo)
     oBrowse:DisableDetails()
 
+    //Adicionando as legendas
+	oBrowse:AddLegend( "ZZB_ATIVO == '1' ", "GREEN",   "Ativo"  )
+	oBrowse:AddLegend( "ZZB_ATIVO == '2' ", "RED",     "Inativo")
+
     //Ativando a Browse
     oBrowse:Activate()
 
     FwRestArea(aArea)
 return
+
+/*/{Protheus.doc} MenuDef
+Menu de opcoes na funcao zHP002
+@author Luis Felipe Oliveira
+@since 30/04/2026
+@version 1.0
+@type function
+/*/
 
 static function MenuDef()
     local aRotina := {}
@@ -60,6 +72,14 @@ static function MenuDef()
 
 return aRotina
 
+/*/{Protheus.doc} ModelDef
+Modelo de dados na funcao zHP001
+@author Luis Felipe Oliveira
+@since 30/04/2026
+@version 1.0
+@type function
+/*/
+
 static function ModelDef()
     local oStruct   := FWFormStruct(1, cAliasMVC)
     local oModel
@@ -67,124 +87,6 @@ static function ModelDef()
     local bPos      := { ||u_zHp2bPos() }
     local bCommit   := nil
     local bCancel   := nil
-    local aGatilhos := {} 
-    local nAtual    := 0
-
-    //----------------------------------------
-    // 1-Configuracao do Inicializador Padrao 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZB_ID',     MODEL_FIELD_INIT, FwBuildFeature(STRUCT_FEATURE_INIPAD, 'GETSXENUM("ZZB","ZZB_ID")' ) ) //ID Protheus
-    //oStruct:SetProperty('ZZB_USERPT', MODEL_FIELD_INIT, FwBuildFeature(STRUCT_FEATURE_INIPAD, 'IIF(INCLUI, "", USRRETNAME(FWFLDGET("ZZB_IDPROT")) )'  ) ) //Usuario Protheus
-    //oStruct:SetProperty('ZZB_TIPO',   MODEL_FIELD_INIT, FwBuildFeature(STRUCT_FEATURE_INIPAD, '1' ) ) //Tipo de usuario 1-Solicitante/2-Atendente
-    //oStruct:SetProperty('ZZB_ATIVO',  MODEL_FIELD_INIT, FwBuildFeature(STRUCT_FEATURE_INIPAD, '1' ) ) //Usuario esta ativo? 1-Ativo/2-Inativo
-
-    //----------------------------------------
-    // 2-Configuracao do Campo Obrigatorio 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZB_IDPROT',  MODEL_FIELD_OBRIGAT, .T. ) //ID Protheus
-    //oStruct:SetProperty('ZZB_IDDPTO',  MODEL_FIELD_OBRIGAT, .T. ) //ID Departamento
-    //oStruct:SetProperty('ZZB_TIPO',    MODEL_FIELD_OBRIGAT, .T. ) //Tipo do Usuario
-    //oStruct:SetProperty('ZZB_ATIVO',   MODEL_FIELD_OBRIGAT, .T. ) //Usuario Ativo    
-
-    //----------------------------------------
-    // 3-Configuracao do Modo de Edicao 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZB_NIVEL', MODEL_FIELD_WHEN, { || fwfldget('ZZB_TIPO') <> '1' } ) //Nivel de Atendimento
-
-    //----------------------------------------
-    // 4-Configuracao de Validacao do Campo 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZB_IDPROT',   MODEL_FIELD_VALID,   FwBuildFeature(STRUCT_FEATURE_VALID,   'ExistChav("ZZB", FWFldGet("M->ZZB_IDPROT"),2)' ) ) //ID Protheus, valida se ja existe usuario cadastrado vinculado a esse ID.
-
-    //----------------------------------------
-    // 5-Configuracao do Gatilho 
-    //----------------------------------------
-    aAdd(aGatilhos, ;
-        FwStruTrigger(;
-            "ZZB_IDPROT",;        //Campo Origem
-            "ZZB_USERPT"  ,;      //Campo Destino
-            'UsrRetName(FwFldGet("ZZB_IDPROT"))',;     //Regra de Preenchimento
-            .F.,;                 //Irá Posicionar
-            "",;                  //Alias do Posicionamento
-            0,;                   //Indice do Posicionamento
-            '',;                  //Chave de Posicionamento
-            nil,;                 //Condição para execução do gatilho
-            "01",;                //Sequência do gatilho
-        );
-    )
-
-    //Adicionando Gatilho
-    aAdd(aGatilhos, ;
-        FwStruTrigger(;
-            "ZZB_IDPROT",;        //Campo Origem
-            "ZZB_NOME"  ,;        //Campo Destino
-            'UsrFullName(FwFldGet("ZZB_IDPROT"))',;     //Regra de Preenchimento
-            .F.,;                 //Irá Posicionar
-            "",;                  //Alias do Posicionamento
-            0,;                   //Indice do Posicionamento
-            '',;                  //Chave de Posicionamento
-            nil,;                 //Condição para execução do gatilho
-            "02",;                //Sequência do gatilho
-        );
-    )
-
-    //Adicionando Gatilho
-    aAdd(aGatilhos, ;
-        FwStruTrigger(;
-            "ZZB_IDPROT",;        //Campo Origem
-            "ZZB_EMAIL"  ,;       //Campo Destino
-            'UsrRetMail(FwFldGet("ZZB_IDPROT"))',;     //Regra de Preenchimento
-            .F.,;                 //Irá Posicionar
-            "",;                  //Alias do Posicionamento
-            0,;                   //Indice do Posicionamento
-            '',;                  //Chave de Posicionamento
-            nil,;                 //Condição para execução do gatilho
-            "03",;                //Sequência do gatilho
-        );
-    )
-
-
-    //Adicionando um gatilho do ZZB_IDDPTO (ID Departamento) para preencher o campo ZZB_NOMDEP (Descricao Departamento)
-    aAdd(aGatilhos, ;
-        FWStrutrigger(;
-            "ZZB_IDDPTO",;          //Campo Origem
-            "ZZB_NOMDEP",;          //Campo Destino
-            "ZZA->ZZA_DESCR",;      //Regra de Preenchimento
-            .T.,;                   //Irá Posicionar?
-            "ZZA",;                 //Alias de Posicioamento
-            1,;                     //Índice de Posicionamento
-            'xFilial("ZZA")+M->ZZB_IDDPTO',; //Chave de Posicionamento
-            nil,;                   //Condição para execução do gatilho
-            "01",;                  //Sequência do gatilho
-        );
-    )
-
-    //Adicionando um gatilho do ZZB_TIPO (Tipo de Cadastro) para preencher o campo ZZB_NIVEL (Nivel de Atendimento)
-    aAdd(aGatilhos, ;
-        FwStruTrigger(;
-            "ZZB_TIPO",;          //Campo Origem
-            "ZZB_NIVEL"  ,;       //Campo Destino
-            "u_Hp02Gat1()",;      //Regra de Preenchimento
-            .F.,;                 //Irá Posicionar
-            "",;                  //Alias do Posicionamento
-            0,;                   //Indice do Posicionamento
-            '',;                  //Chave de Posicionamento
-            nil,;                 //Condição para execução do gatilho
-            "01",;                //Sequência do gatilho
-        );
-    )
-
-
-    //Percorrendo os gatilhos e adicionando na Struct
-    For nAtual := 1 to Len(aGatilhos)
-        oStruct:AddTrigger(;
-            aGatilhos[nAtual][01],; //Campo Origem
-            aGatilhos[nAtual][02],; //Campo Destino
-            aGatilhos[nAtual][03],; //Bloco de código na validação da execução do gatilho
-            aGatilhos[nAtual][04],; //Bloco de código de execução do gatilho
-        )
-    Next
-
 
     //Instanciando o modelo
     oModel := MPFormModel():New('zHP002M', bPre, bPos, bCancel, bCommit)
@@ -195,6 +97,14 @@ static function ModelDef()
 
 return oModel
 
+/*/{Protheus.doc} ViewDef
+Visualizacao de dados na funcao zHP001
+@author Luis Felipe Oliveira
+@since 30/04/2026
+@version 1.0
+@type function
+/*/
+
 static function viewDef()
     local oStruct := FWFormStruct(2,cAliasMVC)
     local oModel  := FWLoadModel('zHP002')
@@ -204,14 +114,14 @@ static function viewDef()
     oStruct:AddGroup('GRUPO_01', 'Dados Protheus',         '', 1) //1-Janela, 2-Separador por Linha
     oStruct:AddGroup('GRUPO_02', 'Dados HelpDesk',         '', 1) //1-Janela, 2-Separador por Linha
     oStruct:AddGroup('GRUPO_03', 'Dados Departamento',     '', 1) //1-Janela, 2-Separador por Linha
+    oStruct:AddGroup('GRUPO_04', 'Dados e-Mail',           '', 1) //1-Janela, 2-Separador por Linha
 
     //Adicionando os campos aos grupos
     oStruct:SetProperty('ZZB_IDPROT', MVC_VIEW_GROUP_NUMBER, 'GRUPO_01')
     oStruct:SetProperty('ZZB_USERPT', MVC_VIEW_GROUP_NUMBER, 'GRUPO_01')
-    oStruct:SetProperty('ZZB_NOME',   MVC_VIEW_GROUP_NUMBER, 'GRUPO_01')
-    oStruct:SetProperty('ZZB_EMAIL',  MVC_VIEW_GROUP_NUMBER, 'GRUPO_01')
 
     oStruct:SetProperty('ZZB_ID',     MVC_VIEW_GROUP_NUMBER, 'GRUPO_02')
+    oStruct:SetProperty('ZZB_NOME',   MVC_VIEW_GROUP_NUMBER, 'GRUPO_02')
     oStruct:SetProperty('ZZB_TIPO',   MVC_VIEW_GROUP_NUMBER, 'GRUPO_02')
     oStruct:SetProperty('ZZB_NIVEL',  MVC_VIEW_GROUP_NUMBER, 'GRUPO_02')
     oStruct:SetProperty('ZZB_ATIVO',  MVC_VIEW_GROUP_NUMBER, 'GRUPO_02')
@@ -219,19 +129,7 @@ static function viewDef()
     oStruct:SetProperty('ZZB_IDDPTO', MVC_VIEW_GROUP_NUMBER, 'GRUPO_03')
     oStruct:SetProperty('ZZB_NOMDEP', MVC_VIEW_GROUP_NUMBER, 'GRUPO_03')
 
-    //----------------------------------------
-    // 1-Configuracao da Consulta Padrao 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZB_IDPROT', MVC_VIEW_LOOKUP, 'USR') //ID Protheus
-    //oStruct:SetProperty('ZZB_IDDPTO', MVC_VIEW_LOOKUP, 'ZZA') //ID Departamento
-
-    //----------------------------------------
-    // 2-Configuracao do ComboBox 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZB_TIPO',  MVC_VIEW_COMBOBOX, {"1=Solicitante","2=Atendente"})
-    //oStruct:SetProperty('ZZB_NIVEL', MVC_VIEW_COMBOBOX, {"1=Baixa Complexidade","2=Media Complexidade","3=Alta Complexidade",""})
-    //oStruct:SetProperty('ZZB_ATIVO', MVC_VIEW_COMBOBOX, {"1=Sim","2=Nao"})
-
+    oStruct:SetProperty('ZZB_EMAIL',  MVC_VIEW_GROUP_NUMBER, 'GRUPO_04')
 
     oView   := FWFormView():New()
     oView:SetModel(oModel)

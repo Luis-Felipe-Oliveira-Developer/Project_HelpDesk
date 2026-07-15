@@ -38,6 +38,14 @@ user function zHP001()
     FwRestArea(aArea)
 return
 
+/*/{Protheus.doc} MenuDef
+Menu de opcoes na funcao zHP001
+@author Luis Felipe Oliveira
+@since 25/03/2026
+@version 1.0
+@type function
+/*/
+
 static function MenuDef()
     local aRotina := {}
 
@@ -49,6 +57,14 @@ static function MenuDef()
 
 return aRotina
 
+/*/{Protheus.doc} ModelDef
+Modelo de dados na funcao zHP001
+@author Luis Felipe Oliveira
+@since 25/03/2026
+@version 1.0
+@type function
+/*/
+
 static function ModelDef()
     local oStruct   := FWFormStruct(1, cAliasMVC)
     local oModel
@@ -56,23 +72,6 @@ static function ModelDef()
     local bPos      := nil
     local bCommit   := nil
     local bCancel   := nil
-
-    //----------------------------------------
-    // 1-Configuracao do Inicializador Padrao 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZA_ID',     MODEL_FIELD_INIT, FwBuildFeature(STRUCT_FEATURE_INIPAD, 'GETSXENUM("ZZA","ZZA_ID")' ) ) //ID Departamento
-    //oStruct:SetProperty('ZZA_ATIVO',  MODEL_FIELD_INIT, FwBuildFeature(STRUCT_FEATURE_INIPAD, '1' ) ) //1-Ativo/2-Inativo
-
-    //----------------------------------------
-    // 2-Configuracao do Campo Obrigatorio 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZA_DESCR',  MODEL_FIELD_OBRIGAT, .T. ) //Descricao Departamento
-    //oStruct:SetProperty('ZZA_ATIVO',  MODEL_FIELD_OBRIGAT, .T. ) //Descricao Departamento
-
-    //----------------------------------------
-    // 3-Configuracao de Validacao do Campo 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZA_DESCR',   MODEL_FIELD_VALID,   FwBuildFeature(STRUCT_FEATURE_VALID,   'ExistChav("ZZA", FWFldGet("M->ZZA_DESCR"),2)' ) ) //Descricao do Departamento, valida se ja existe a descricao cadastrada.
 
     //Instanciando o modelo
     oModel := MPFormModel():New('zHP001M', bPre, bPos, bCancel, bCommit)
@@ -83,16 +82,18 @@ static function ModelDef()
 
 return oModel
 
+/*/{Protheus.doc} ViewDef
+Visualizacao de dados na funcao zHP001
+@author Luis Felipe Oliveira
+@since 25/03/2026
+@version 1.0
+@type function
+/*/
+
 static function viewDef()
     local oStruct := FWFormStruct(2,cAliasMVC)
     local oModel  := FWLoadModel('zHP001')
     local oView
-
-    //----------------------------------------
-    // 1-Configuracao do ComboBox 
-    //----------------------------------------
-    //oStruct:SetProperty('ZZA_ATIVO',  MVC_VIEW_COMBOBOX, {"1=Ativo","2=Inativo"})
-
 
     oView   := FWFormView():New()
     oView:SetModel(oModel)
